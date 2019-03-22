@@ -59,6 +59,7 @@ struct TeleopTwistJoy::Impl
 
   bool sent_disable_msg;
 
+  bool enable_nonholonomic;
   double steer_angle_gain;
   double simulated_vehicle_length;
 };
@@ -103,6 +104,7 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle* nh, ros::NodeHandle* nh_param)
         pimpl_->scale_angular_map["turbo"]["yaw"], pimpl_->scale_angular_map["normal"]["yaw"]);
   }
 
+  nh_param->param<bool>("enable_nonholonomic", pimpl_->enable_nonholonomic, true);
   nh_param->param<double>("steer_angle_gain", pimpl_->steer_angle_gain, 2.0);
   nh_param->param<double>("simulated_vehicle_length", pimpl_->simulated_vehicle_length, 0.4);
 
@@ -161,9 +163,10 @@ void TeleopTwistJoy::Impl::sendCmdVelMsg(const sensor_msgs::Joy::ConstPtr& joy_m
   // see https://inst.eecs.berkeley.edu/~ee192/sp13/pdf/steer-control.pdf
   //double simulated_vehicle_length = 0.4;
   //double steer_angle_gain = 2.0;
-
-  double steering_angle = cmd_vel_msg.angular.z * steer_angle_gain;
-  cmd_vel_msg.angular.z = cmd_vel_msg.linear.x / simulated_vehicle_length * tan(steering_angle);
+  if(enable_nonholonomic){
+    double steering_angle = cmd_vel_msg.angular.z * steer_angle_gain;
+    cmd_vel_msg.angular.z = cmd_vel_msg.linear.x / simulated_vehicle_length * tan(steering_angle);
+  } 
 
   cmd_vel_pub.publish(cmd_vel_msg);
   sent_disable_msg = false;
