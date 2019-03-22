@@ -58,6 +58,9 @@ struct TeleopTwistJoy::Impl
   std::map< std::string, std::map<std::string, double> > scale_angular_map;
 
   bool sent_disable_msg;
+
+  double steer_angle_gain;
+  double simulated_vehicle_length;
 };
 
 /**
@@ -99,6 +102,9 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle* nh, ros::NodeHandle* nh_param)
     nh_param->param<double>("scale_angular_turbo",
         pimpl_->scale_angular_map["turbo"]["yaw"], pimpl_->scale_angular_map["normal"]["yaw"]);
   }
+
+  nh_param->param<double>("steer_angle_gain", pimpl_->steer_angle_gain, 2.0);
+  nh_param->param<double>("simulated_vehicle_length", pimpl_->simulated_vehicle_length, 0.4);
 
   ROS_INFO_NAMED("TeleopTwistJoy", "Teleop enable button %i.", pimpl_->enable_button);
   ROS_INFO_COND_NAMED(pimpl_->enable_turbo_button >= 0, "TeleopTwistJoy",
@@ -153,8 +159,8 @@ void TeleopTwistJoy::Impl::sendCmdVelMsg(const sensor_msgs::Joy::ConstPtr& joy_m
 
   // Implements Bicycle Kinematics - Nonholonomic Kinematics
   // see https://inst.eecs.berkeley.edu/~ee192/sp13/pdf/steer-control.pdf
-  double simulated_vehicle_length = 0.4;
-  double steer_angle_gain = 2.0;
+  //double simulated_vehicle_length = 0.4;
+  //double steer_angle_gain = 2.0;
 
   double steering_angle = cmd_vel_msg.angular.z * steer_angle_gain;
   cmd_vel_msg.angular.z = cmd_vel_msg.linear.x / simulated_vehicle_length * tan(steering_angle);
