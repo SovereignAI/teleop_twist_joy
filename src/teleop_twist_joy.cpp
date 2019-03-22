@@ -29,6 +29,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <map>
 #include <string>
+#include <math.h>       /* tan */
 
 
 namespace teleop_twist_joy
@@ -149,6 +150,14 @@ void TeleopTwistJoy::Impl::sendCmdVelMsg(const sensor_msgs::Joy::ConstPtr& joy_m
   cmd_vel_msg.angular.z = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "yaw");
   cmd_vel_msg.angular.y = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "pitch");
   cmd_vel_msg.angular.x = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "roll");
+
+  // Implements Bicycle Kinematics - Nonholonomic Kinematics
+  // see https://inst.eecs.berkeley.edu/~ee192/sp13/pdf/steer-control.pdf
+  double simulated_vehicle_length = 0.4;
+  double steer_angle_gain = 2.0;
+
+  double steering_angle = cmd_vel_msg.angular.z * steer_angle_gain;
+  cmd_vel_msg.angular.z = cmd_vel_msg.linear.x / simulated_vehicle_length * tan(steering_angle);
 
   cmd_vel_pub.publish(cmd_vel_msg);
   sent_disable_msg = false;
