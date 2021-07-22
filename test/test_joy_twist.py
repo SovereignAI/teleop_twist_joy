@@ -36,7 +36,7 @@ class TestJoyTwist(unittest.TestCase):
     def setUp(self):
         rospy.init_node('test_joy_twist_node', anonymous=True)
         self.pub = rospy.Publisher('joy', sensor_msgs.msg.Joy)
-        rospy.Subscriber('cmd_vel', geometry_msgs.msg.Twist, callback=self.callback)
+        rospy.Subscriber('teleop_node/cmd_vel', geometry_msgs.msg.Twist, callback=self.callback)
 
         while (not rospy.has_param("~publish_joy")) and (not rospy.get_param("~expect_cmd_vel")):
             time.sleep(0.1)

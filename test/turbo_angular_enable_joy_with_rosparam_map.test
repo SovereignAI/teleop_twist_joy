@@ -25,7 +25,7 @@
         buttons: [ 1, 1 ]
       expect_cmd_vel:
         linear: { x: 0.8, y: 0, z: 0 }
-        angular: { x: 0, y: 0, z: 0.6 }
+        angular: { x: 0, y: 0, z: 0.48 }
     </rosparam>
   </test>
 </launch>
